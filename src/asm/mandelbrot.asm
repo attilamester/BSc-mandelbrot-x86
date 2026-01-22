@@ -407,6 +407,7 @@ main:
 	; Main loop
 .mainloop:
 	; Draw something
+	mov		dword [activity], 0
 	call	gfx_map			; map the framebuffer -> EAX will contain the pointer
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; SET BORDER VALUES: leftValue, rightValue, ...
@@ -569,6 +570,9 @@ main:
 	
 .eventloop:
 	call	gfx_getevent	;get last event
+	test	eax, eax
+	jz		.noEventMark
+.noEventMark:
 	
 	; Handle movement: keyboard
 	cmp		eax, 'w'	; w key pressed
@@ -605,6 +609,8 @@ main:
 .possibleZoomIn:
 	cmp		eax, 4
 	jne		.possibleZoomOut
+	mov		dword [activity], 1
+	mov		dword [activity_cooldown], 6
 	; zoom in ->
 	call	gfx_getmouse	; eax := x ; ebx := y
 	mov		edx, eax		; edx := oszlop koord.
@@ -677,6 +683,8 @@ main:
 	jne		.possibleRestoreInitialZoom
 	; zoom out ->
 .doit_zoomOut:
+	mov		dword [activity], 1
+	mov		dword [activity_cooldown], 6
 	call	gfx_getmouse	; eax := x ; ebx := y
 	mov		edx, eax		; edx := oszlop koord.
 	mov		ecx, ebx		; ecx := sor koord.
@@ -828,6 +836,11 @@ main:
 	; mov		[prevmousey], edx
 	
 .updateoffset:
+	cmp		dword [movemouse], 0
+	je		.noDragActivity
+	mov		dword [activity], 1
+	mov		dword [activity_cooldown], 6
+.noDragActivity:
 	cvtsi2ss	xmm0, esi
 	mulss		xmm0, [k_tiny]	; -1 v. 0 v. 1 * e
 	;addss	xmm0, [offsetx]
@@ -842,11 +855,20 @@ main:
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; SPEC ANIMACIO: novekvo pontossag:
 	; try this out 
-	cmp		dword [precision], 50
+.precisionControl:
+	cmp		dword [activity_cooldown], 0
+	je		.activityCooldownDone
+	mov		dword [activity], 1
+	dec		dword [activity_cooldown]
+.activityCooldownDone:
+	cmp		dword [activity], 0
+	je		.precisionIdle
+	mov		dword [precision], 20
+	jmp		.enough
+.precisionIdle:
+	cmp		dword [precision], 100
 	je		.enough
 	inc		dword [precision]
-	mov		eax, 100
-	call	sleep
 .enough:
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	jmp 	.mainloop
@@ -863,11 +885,12 @@ section .data
 	k_2_0		dd	2.0
 	k_little	dd	0.01
 	
-	precision	dd	1	;iteraciok szama
+	precision	dd	20	;iteraciok szama
 	
 	; screen ratio : 1.777777..8
 	; -left -> right: 5.68..9
 	; 2.8444444445
+	align 16
 	LeftLimit	dd	-2.5
 	RightLimit	dd	1.5	; dx = 4k
 	TopLimit	dd	1.5
@@ -880,6 +903,7 @@ section .data
 	
 	prevmousex 	dd 	0
 	
+	align 16
 		zoomIn		dd	0.8, 0.8, 0.8, 0.8
 		zoomOut		dd	1.25, 1.25, 1.25, 1.25
 		
@@ -890,10 +914,12 @@ section .data
 	zoomOutDec	dd	1.1
 	
 	k_0			dd	0.0
+	align 16
 	k_1_vector	dd	1.0, 1.0, 1.0, 1.0
 	k_2_vector	dd	2.0, 2.0, 2.0, 2.0
 	k_0_vector	dd	0.0, 0.0, 0.0, 0.0
 	
+	align 16
 	k_make4real	dd	0.0,1.0,2.0,3.0
 	
 	k_tiny		dd	0.1	
@@ -922,8 +948,11 @@ section .data
 	melyikJulia	db	"Built-in Julia fractals: 1, 2, 3", 10, 13, "OPTION:", 0
 section .bss
 	;;__COORDINATE-SYSTEM's 4 limit value__;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	align 16
 	leftValue		resd	1
 	rightValue		resd	1
 	topValue		resd	1
 	bottomValue		resd	1
 	MANDEL_OR_JULIA resd	1
+	activity		resd	1
+	activity_cooldown resd	1
