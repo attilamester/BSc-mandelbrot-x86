@@ -940,7 +940,7 @@ section .data
 	;;__MESSAGES__;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 	caption 	db 	"Mandelbrot Set", 0
-	infomsg 	db 	"-> Use WASD and mouse (drag) to move the image", 10, 13, "-> Use mouse to zoom in/out", 10, 13, "-> Use r to reset", 0
+	infomsg 	db 	"-> Use WASD and mouse (drag) to move the image", 10, 13, "-> Use mouse to zoom in/out", 10, 13, "-> Use r to reset", 10, 13, 0
 	errormsg 	db 	"ERROR: could not initialize graphics!", 0
 
 	vonal	db	'_', 0

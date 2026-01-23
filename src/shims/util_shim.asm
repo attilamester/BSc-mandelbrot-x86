@@ -9,3 +9,5 @@ sleep:
     call sleep_c
     add esp, 4
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits

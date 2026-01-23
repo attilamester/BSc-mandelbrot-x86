@@ -11,6 +11,10 @@ static int g_w = 0;
 static int g_h = 0;
 
 int gfx_init_c(int w, int h, int fullscreen, const char *title) {
+    SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "0");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 0;
@@ -19,7 +23,9 @@ int gfx_init_c(int w, int h, int fullscreen, const char *title) {
     g_w = w;
     g_h = h;
 
-    Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+    const char *allow_fullscreen = getenv("GFX_ALLOW_FULLSCREEN");
+    int use_fullscreen = fullscreen && allow_fullscreen && allow_fullscreen[0] != '0';
+    Uint32 flags = use_fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
     g_window = SDL_CreateWindow(
         title ? title : "Mandelbrot",
         SDL_WINDOWPOS_CENTERED,

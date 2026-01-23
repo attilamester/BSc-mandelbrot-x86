@@ -30,3 +30,5 @@ io_writeflt:
 io_readint:
     call io_readint_c
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits

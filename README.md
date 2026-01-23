@@ -31,6 +31,29 @@ Run:
 ./bin/mandelbrot
 ```
 
+## Quick run with Docker
+
+* just run: `docker-run.sh`
+* or:
+```
+docker run --rm -it \
+    -e DISPLAY="unix${DISPLAY:-:0}" \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    attilamester/mandelbrot-x86:latest
+```
+
+## Build with Docker
+
+```
+docker compose build mandelbrot
+docker compose run mandelbrot
+```
+
+If the window does not appear, allow local X11 access on the host:
+```
+xhost +local:root
+```
+
 ## Controls
 
 - `W/A/S/D` — move

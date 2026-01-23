@@ -1,0 +1,9 @@
+services:
+  mandelbrot:
+    build: .
+    stdin_open: true
+    tty: true
+    environment:
+      - DISPLAY=unix${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
