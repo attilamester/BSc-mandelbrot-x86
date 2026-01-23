@@ -34,7 +34,7 @@ Run:
 ## Quick run with Docker
 
 * just run: `docker-run.sh`
-* or:
+* or use the pre-built image published on [Docker Hub](https://hub.docker.com/repository/docker/attilamester/mandelbrot-x86/general):
 ```
 docker run --rm -it \
     -e DISPLAY="unix${DISPLAY:-:0}" \
