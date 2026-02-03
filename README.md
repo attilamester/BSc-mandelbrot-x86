@@ -38,7 +38,9 @@ Run:
 ```
 docker run --rm -it \
     -e DISPLAY="unix${DISPLAY:-:0}" \
+    -e XAUTHORITY=/tmp/.Xauthority \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v "${XAUTHORITY:-$HOME/.Xauthority}:/tmp/.Xauthority" \
     attilamester/mandelbrot-x86:latest
 ```
 
